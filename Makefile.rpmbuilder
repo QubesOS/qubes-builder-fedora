@@ -14,6 +14,7 @@
 # Use spec files list as PACKAGE_LIST
 PACKAGE_LIST = $(strip $(RPM_SPEC_FILES) $(RPM_SRC_PACKAGES))
 DIST_BUILD_DIR = /home/user
+export REPO_PROXY
 
 ifneq (1,$(NO_ARCHIVE))
 # allow Makefile.builder in component to override this value
@@ -132,8 +133,10 @@ dist-package: dist-package-build
 
 ifeq (1,$(USE_DIST_BUILD_TOOLS))
 include $(RPM_PLUGIN_DIR)Makefile-mock.rpmbuilder
-else
+else ifeq (,$(USE_DIST_BUILD_TOOLS))
 include $(RPM_PLUGIN_DIR)Makefile-legacy.rpmbuilder
+else
+$(error bad value for $$(USE_DIST_BUILD_TOOLS) (must be 1 or empty string))
 endif
 
 # dist-package-build and dist-copy-out defined in Makefile-*.rpmbuilder included above
