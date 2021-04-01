@@ -133,10 +133,10 @@ dist-package: dist-package-build
 
 ifeq (1,$(USE_DIST_BUILD_TOOLS))
 include $(RPM_PLUGIN_DIR)Makefile-mock.rpmbuilder
-else ifeq (,$(USE_DIST_BUILD_TOOLS))
+else ifeq (0,$(or $(USE_DIST_BUILD_TOOLS),0))
 include $(RPM_PLUGIN_DIR)Makefile-legacy.rpmbuilder
 else
-$(error bad value for $$(USE_DIST_BUILD_TOOLS) (must be 1 or empty string))
+$(error bad value for $$(USE_DIST_BUILD_TOOLS) (must be 1, 0, or empty string))
 endif
 
 # dist-package-build and dist-copy-out defined in Makefile-*.rpmbuilder included above
