@@ -36,7 +36,9 @@ MOCK_ENV = DIST=$(DIST) \
 		   USE_QUBES_REPO_VERSION=$(USE_QUBES_REPO_VERSION) \
 		   BUILDER_REPO_DIR=$(BUILDER_REPO_DIR) \
 		   CACHEDIR=$(CACHEDIR) \
-		   CHROOT_DIR=$(CHROOT_DIR)
+		   CHROOT_DIR=$(CHROOT_DIR) \
+		   $(and $(REPO_PROXY),http_proxy=$(call shellquote,$(REPO_PROXY)) \
+		   https_proxy=$(call shellquote,$(REPO_PROXY)))
 
 spec_pkg_name = $(shell cd $(ORIG_SRC) && [ -n "$(1)" ] && \
 	rpm -q $(RPM_QUERY_DEFINES) --qf '%{NAME}\n' --specfile $(1) | head -n 1)

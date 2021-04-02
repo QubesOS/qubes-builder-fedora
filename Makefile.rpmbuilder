@@ -14,7 +14,10 @@
 # Use spec files list as PACKAGE_LIST
 PACKAGE_LIST = $(strip $(RPM_SPEC_FILES) $(RPM_SRC_PACKAGES))
 DIST_BUILD_DIR = /home/user
-export REPO_PROXY
+http_proxy := $(REPO_PROXY)
+https_proxy := $(REPO_PROXY)
+shellquote = '$(subst ','\'',$1)'
+export REPO_PROXY http_proxy https_proxy
 
 ifneq (1,$(NO_ARCHIVE))
 # allow Makefile.builder in component to override this value
