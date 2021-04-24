@@ -120,11 +120,39 @@ dist-prep:
 dist-build-dep: $(CHROOT_DIR)$(DIST_SRC)/$(PACKAGE)
 
 ifdef INCREMENT_DEVEL_VERSIONS
-dist-package: devel_ver_path = $(ORIG_SRC)/$(OUTPUT_DIR)/$(notdir $(PACKAGE)).devel
+DEVEL_VER_FILE = $(ORIG_SRC)/$(OUTPUT_DIR)/$(notdir $(COMPONENT)).devel
+
+# Unconditional rebuild for devel builds
+SOURCE += $(DEVEL_VER_FILE)
+
+dist-package: $(shell mkdir -p $(ORIG_SRC)/$(OUTPUT_DIR) && touch $(DEVEL_VER_FILE))
+dist-package: devel_ver_path = $(DEVEL_VER_FILE)
 dist-package: devel_ver_prev = $(shell cat $(devel_ver_path) 2>/dev/null)
 dist-package: devel_ver := $(shell expr $(devel_ver_prev) + 1)
 dist-package: RPM_BUILD_DEFINES += --define "dist .$(devel_ver).$(DIST)"
 dist-package: RPM_QUERY_DEFINES += --define "dist .$(devel_ver).$(DIST)"
+
+else
+
+# Condition to rebuild: built commit hash is not the HEAD one
+PKGBUID_COMMITHASH := $(shell cat $(OUTPUT) 2> /dev/null)
+LATEST_COMMITHASH := $(shell git -C $(ORIG_SRC) log -1 --format=%H)
+ifeq ($(shell test $(PKGBUID_COMMITHASH) != $(LATEST_COMMITHASH); echo $$?),0)
+dist-package: $(shell rm -rf $(OUTPUT))
+endif
+
+# Condition to rebuild: newer commits
+PKGBUILD_TIMESTAMP := $(shell stat -c %Z $(OUTPUT) 2> /dev/null || echo 0)
+LASTCOMMIT_TIMESTAMP := $(shell git -C $(ORIG_SRC) log -1 --format=%ct)
+ifeq ($(shell test $(PKGBUILD_TIMESTAMP) -lt $(LASTCOMMIT_TIMESTAMP); echo $$?),0)
+dist-package: $(shell rm -rf $(OUTPUT))
+endif
+
+# Condition to rebuild: current uncommited work
+ifneq ($(shell test -z $(shell git -C $(ORIG_SRC) diff); echo $$?),0)
+dist-package: $(shell rm -rf $(OUTPUT))
+endif
+
 endif
 
 dist-package: RPM_BUILD_DEFINES += $(RPM_BUILD_EXTRA_DEFINES)
