@@ -89,7 +89,7 @@ endif
 RPM_BUILD_DEFINES += --define "dist .$(DIST_TAG)"
 RPM_QUERY_DEFINES += --define "dist .$(DIST_TAG)"
 
-BUILDINFO_SIGN_CMD ?= $(firstword $(GNUPG) gpg2)
+BUILDINFO_SIGN_CMD ?= $(shell rpm --eval %{__gpg})
 BUILDINFO_SIGN_CMD += --clearsign
 RPMSIGN_OPTS ?=
 RPMSIGN_OPTS += --digest-algo=sha256
